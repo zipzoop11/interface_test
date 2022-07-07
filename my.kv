@@ -1,0 +1,128 @@
+#:import Factory kivy.factory.Factory
+<MainInterface>:
+    orientation: 'vertical'
+    id: main_app
+    GridLayout:
+        id: status_bar
+        cols: 3
+        rows: 1
+        size_hint: 1, None
+        height: "60dp"
+        Button:
+            size_hint: None, 1
+            width: "100dp"
+            text: 'AAAA'
+        Button:
+            disabled: True
+            id: status_connected
+            text: app.connect_status
+        Button:
+            size_hint: None, 1
+            width: "100dp"
+            text: 'CCCC'
+    MiddleBit:
+        id: middle_window
+    GridLayout:
+        id: bottom_row
+        cols: 3
+        rows: 1
+        size_hint: 1, None
+        height: "80dp"
+        Button:
+            text: 'CONNECT'
+            on_release: Factory.BTPickerPopup().open()
+        Button:
+            text: 'ADD TARGET'
+            id: ADD_TARGET
+            disabled: not app.connected
+            on_release: Factory.add_target().open()
+        Button:
+            text: 'INTERFACES'
+            id: INTERFACES
+            disabled: not app.connected
+            on_release: Factory.start_interface().open()
+
+
+<MiddleBit@PageLayout>
+    border: "25dp"
+    TargetList:
+        id: TARGET_LIST
+    OpaqueBoxLayout:
+        Button:
+            text: '22222'
+        Button:
+            text: '22222'
+        Button:
+            text: '22222'
+    OpaqueBoxLayout:
+        orientation: 'vertical'
+        Button:
+            text: '33333'
+        Button:
+            text: '33333'
+        Button:
+            text: '33333'
+
+
+<OpaqueBoxLayout@BoxLayout+BackgroundColor>
+    background_color: 0, 0, 0, 0
+
+
+
+
+<target@Target>:
+    size_hint: 1, None
+    height: '80dp'
+    canvas:
+        Color:
+            rgba: 0,0,0,1
+        Rectangle:
+            size: self.width+5, self.height+5
+            pos: self.pos
+    BackgroundLabel:
+        text: 'NAME'
+        id: name
+        background_color: 1,0,0,1
+    BackgroundLabel:
+        text: 'MAC '
+        id: mac
+        background_color: 1,0,1,1
+    BoxLayout:
+        orientation: 'vertical'
+        id: info
+        BackgroundLabel:
+            text: 'RSSI: -'
+            id: info_rssi
+            background_color: 1,0,1,1
+        BackgroundLabel:
+            text: 'Channel: -'
+            id: info_channel
+            background_color: 1,0,1,1
+        BackgroundLabel:
+            text: 'BSSID: -'
+            id: info_bssid
+            background_color: 1,0,1,1
+
+
+
+
+
+
+
+<BackgroundColor@Widget>
+    background_color: 0, 0, 0, 1
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+<BackgroundLabel@Label+BackgroundColor>
+    background_color: 0, 0, 0, 1
+    # Default the background color for this label
+    # to r 0, g 0, b 0, a 0
+
+
+
+
