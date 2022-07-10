@@ -131,8 +131,7 @@ class add_target(Popup):
                 self.error_message.text = ''
                 for key in app.interfaces:
                     interface = app.interfaces[key]
-                    interface['TARGETS'].append(self.mac_entry.text)
-                    self.target_list.add_target((self.mac_entry.text, self.name_entry.text))
+                    interface['TARGETS'].append((self.mac_entry.text, self.name_entry.text))
 
                     request = {
                         'ACTION': 'UPDATE_SETTINGS',
@@ -149,6 +148,7 @@ class add_target(Popup):
     def add_target_callback(self, *args, **kwargs):
         self.error_message.color = (0, 1, 0, 1)
         self.error_message.text = 'ADDED!'
+        self.target_list.add_target((self.mac_entry.text, self.name_entry.text))
 
 
 
@@ -319,7 +319,7 @@ class MyApp(App):
                 self.app.root.ids['status_connected'].text = f"Connected: {self.connected}"
                 self.app.root.ids['ADD_TARGET'].disabled = False
                 self.app.root.ids['INTERFACES'].disabled = False
-                Clock.schedule_interval(self.clock_callback, 5.0)
+                Clock.schedule_interval(self.clock_callback, 1.0)
             else:
                 print("Couldn't connect to {}".format(name))
 
