@@ -62,13 +62,9 @@ class start_interface(Popup):
                 app.interfaces[i] = interfaces[i]['SETTINGS']
                 targets = interfaces[i]['SETTINGS']['TARGETS']
 
-                test_addrs = random_macs(100)
-
-                for addr in test_addrs:
-                    add_target_to_list((addr[0], addr[1]))
-                #if targets:
-                #    for t in targets:
-                #        add_target_to_list((t[0], t[1]))
+                if targets:
+                    for t in targets:
+                        add_target_to_list((t[0], t[1]))
 
                 print(f"[{__name__}]app.interfaces[{i}]: {app.interfaces[i]}")
 
