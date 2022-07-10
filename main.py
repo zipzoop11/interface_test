@@ -14,7 +14,8 @@ import queue
 import time
 from helper_functions import starter_function_generator
 from helper_functions import validate_mac
-from helper_functions import add_target
+from helper_functions import add_targets
+from helper_functions  import remove_targets
 
 if platform == 'android':
     from jnius import autoclass
@@ -140,7 +141,7 @@ class add_target_popup(Popup):
                 self.error_message.text = ''
                 for key in app.interfaces:
                     entry = (self.mac_entry.text, self.name_entry.text)
-                    add_target([entry], key, callback_func=self.add_target_callback)
+                    add_targets([entry], key, callback_func=self.add_target_callback)
             else:
                 print("INVALID MAC")
                 self.error_message.color = (1, 0, 0, 1)
@@ -152,20 +153,23 @@ class add_target_popup(Popup):
         self.target_list.add_target_to_list((self.mac_entry.text, self.name_entry.text))
 
 
-class TargetView(ScrollView):
-    def __init__(self, **kwargs):
-        super(TargetView, self).__init__(**kwargs)
-        pass
 
 
 class Target(BoxLayout, Widget):
     def __init__(self, name=None, MAC=None, **kwargs):
         super(Target, self).__init__(**kwargs)
+        self.app = App.get_running_app()
         self.orientation = 'vertical'
         self.tgt = GridLayout(cols=3, rows=1)
         self.cols = 3
         self.rows = 2
+
+        self.name = name
+        self.MAC = MAC
+
         self.last_notify = 0
+        self.target_list = self.app.root.ids['middle_window'].ids['TARGET_LIST']
+        self.remove_func = self.target_list.remove_target_from_list
 
         self.ident = GridLayout(cols=1, rows=2)
         self.name_label = Label(text=name)
@@ -185,8 +189,12 @@ class Target(BoxLayout, Widget):
 
         self.control_buttons = GridLayout(cols=1, rows=2)
         self.remove_btn = Button(text='X')
+        self.remove_btn.id = self.MAC_label.text
+        self.remove_btn.bind(on_release=self.remove_func)
+
         self.focus_btn = Button(text='FOCUS')
         self.control_buttons.add_widget(self.remove_btn)
+
         self.control_buttons.add_widget(self.focus_btn)
         self.tgt.add_widget(self.control_buttons)
 
@@ -241,6 +249,24 @@ class TargetList(ScrollView):
             self.scroll_list.height += self.targets[t_mac].height
             self.scroll_list.add_widget(self.targets[t_mac])
 
+    def remove_target_from_list(self, *args):
+        app = App.get_running_app()
+        print(f"[remove_target_from_list]args {args}")
+        caller = args[0]
+        try:
+            t = self.targets[caller.id]
+        except KeyError:
+            return False
+        if t:
+            t_mac = t.MAC
+            t_name = t.name
+
+            def callback(*args, **kwargs):
+                self.scroll_list.height -= t.height
+                self.scroll_list.rows -= 1
+                self.scroll_list.remove_widget(t)
+            for i in app.interfaces:
+                remove_targets([(t_mac, t_name)], i, callback_func=callback)
 
 class BTPickerPopup(Popup):
     def __init__(self, **kwargs):

@@ -67,7 +67,7 @@ def validate_mac(mac_address):
 		return False
 
 
-def add_target(new_targets, interface_name, callback_func=None):
+def add_targets(new_targets, interface_name, callback_func=None):
 	app = App.get_running_app()
 	conn = app.Bluetooth_connection
 
@@ -92,6 +92,48 @@ def add_target(new_targets, interface_name, callback_func=None):
 			return True
 		else:
 			return True
+
+
+def remove_targets(targets, interface_name, callback_func=None):
+	app = App.get_running_app()
+	conn = app.Bluetooth_connection
+	print(f"[remove_targets]Removing: {targets} for interface {interface_name}")
+
+	register_callback = app.register_request
+	try:
+		interface = app.interfaces[interface_name]
+	except KeyError:
+		return False
+	intermediate_list = []
+	for t in targets:
+		intermediate_list.append(list(t))
+		intermediate_list.append([t[0].lower(), t[1]])
+
+	target_list = interface['TARGETS']
+	print(f"got target_list: {target_list}")
+	for t in intermediate_list:
+		print(f"[remove_targets]Looking for {t} in {target_list}")
+		if t in target_list:
+			print(f"Found {t} in target list!")
+			target_list.remove(t)
+
+		print(f"target_list is now: {target_list}")
+
+	request = {
+		'ACTION': 'UPDATE_SETTINGS',
+		'ARGS': {'interface_name': interface_name},
+		'SETTINGS': {'TARGETS': target_list}
+	}
+	request_id = conn.send(request)
+
+	if callback_func:
+		register_callback(request_id, callback_func)
+		return True
+	else:
+		return True
+
+
+
 
 
 def random_macs(num):
