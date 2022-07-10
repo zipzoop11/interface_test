@@ -1,9 +1,7 @@
 from kivy.app import App
-from kivy.graphics import Color, Rectangle
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.stacklayout import StackLayout
 from kivy.uix.widget import Widget
 from kivy.utils import platform
 from kivy.clock import Clock
@@ -13,15 +11,17 @@ from kivy.uix.label import Label
 from kivy.uix.switch import Switch
 from kivy.uix.textinput import TextInput
 import queue
+import time
 from helper_functions import starter_function_generator
 from helper_functions import validate_mac
 from helper_functions import add_target
-from helper_functions import random_macs
 
 if platform == 'android':
     from jnius import autoclass
+    from plyer import notification
     from bt_client import Bluetooth_connection
     BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
+    autoclass('org.jnius.NativeInvocationHandler')
 
 
 class start_interface(Popup):
@@ -165,6 +165,7 @@ class Target(BoxLayout, Widget):
         self.tgt = GridLayout(cols=3, rows=1)
         self.cols = 3
         self.rows = 2
+        self.last_notify = 0
 
         self.ident = GridLayout(cols=1, rows=2)
         self.name_label = Label(text=name)
@@ -201,6 +202,10 @@ class Target(BoxLayout, Widget):
         self.rssi.text = f"RSSI: {hit['rssi']}"
         self.channel.text = f"CHANNEL: {hit['channel']}"
         self.BSSID.text = f"BSSID: {hit['bssid']}"
+
+        if time.time() - self.last_notify > 60:
+            notification.notify(title=f'{self.name_label.text} UPDATED', message=f'{self.name_label.text} RSSI: {self.rssi.text} CHANNEL {self.channel.text}')
+            self.last_notify = time.time()
 
         return True
 
