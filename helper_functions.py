@@ -66,8 +66,7 @@ def validate_mac(mac_address):
 		return False
 
 
-def add_target(t_mac, t_name, interface_name, callback_func=None):
-	print(f"[{__name__}]Called for interface {interface_name} with t_mac: {t_mac} and t_name: {t_name} and callback_func {callback_func}")
+def add_target(new_targets, interface_name, callback_func=None):
 	app = App.get_running_app()
 	conn = app.Bluetooth_connection
 
@@ -78,15 +77,13 @@ def add_target(t_mac, t_name, interface_name, callback_func=None):
 		return False
 	else:
 		target_list = interface['TARGETS']
-		target_entry = t_mac, t_name
-		target_list.append(target_entry)
+		target_list += new_targets
 
 		request = {
 			'ACTION': 'UPDATE_SETTINGS',
 			'ARGS': {'interface_name': interface_name},
-			'SETTINGS': {'TARGETS': interface['TARGETS']}
+			'SETTINGS': {'TARGETS': target_list}
 		}
-
 		request_id = conn.send(request)
 
 		if callback_func:

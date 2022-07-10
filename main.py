@@ -50,6 +50,8 @@ class start_interface(Popup):
         interfaces = args[0]
 
         self.interface_list.remove_widget(self.placeholder)
+        target_list = app.root.ids['middle_window'].ids['TARGET_LIST']
+        add_target_to_list = target_list.add_target_to_list
 
         for i in interfaces:
             print(f"Generating starter function for {i}")
@@ -58,6 +60,12 @@ class start_interface(Popup):
             if STATE == 'RUNNING':
                 running = True
                 app.interfaces[i] = interfaces[i]['SETTINGS']
+                targets = interfaces[i]['SETTINGS']['TARGETS']
+
+                if targets:
+                    for t in targets:
+                        add_target_to_list((t[0], t[1]))
+
                 print(f"[{__name__}]app.interfaces[{i}]: {app.interfaces[i]}")
 
             widget = Interface_list_entry(i, starter_function_generator(i, self), running)
@@ -94,14 +102,12 @@ class add_target_popup(Popup):
         self.main_body = BoxLayout(orientation='vertical')
         self.name_entry = TextInput(hint_text='name', multiline=False)
         self.mac_entry = TextInput(hint_text='MAC Address', multiline=False)
-        #self.mac_entry.bind(on_text_validate=self.validate_mac)
         self.dismiss_button = Button(text='Close')
 
         self.buttons = GridLayout(rows=1, cols=2)
         self.dismiss_button.bind(on_release=self.dismiss)
         self.add_button = Button(text='Add target')
         self.add_button.bind(on_release=self.add)
-        #self.add_button.disabled = True
         self.error_message = Label(text='', color=(1, 0, 0, 0))
 
         self.buttons.add_widget(self.dismiss_button)
@@ -131,7 +137,8 @@ class add_target_popup(Popup):
                 self.error_message.color = (1, 0, 0, 0)
                 self.error_message.text = ''
                 for key in app.interfaces:
-                    add_target(self.mac_entry.text, self.name_entry.text, key, callback_func=self.add_target_callback)
+                    entry = (self.mac_entry.text, self.name_entry.text)
+                    add_target([entry], key, callback_func=self.add_target_callback)
             else:
                 print("INVALID MAC")
                 self.error_message.color = (1, 0, 0, 1)
@@ -277,12 +284,11 @@ class MyApp(App):
             msg = self.bt_queue.get(timeout=0.2)
 
             if msg.get('TYPE') == 'HIT':
-                print(f"[clock_callback]Got type 'HIT' {msg}")
+                #print(f"[clock_callback]Got type 'HIT' {msg}")
                 body = msg['BODY']
                 addrs = [m.upper() for m in body['mac']]
 
                 for addr in addrs:
-                    print(f"[clock_callback]Checking if {addr} is in targetlist")
                     if addr in target_list.targets:
                         target_list.targets[addr].dispatch_on_hit(body)
             elif msg.get('TYPE') == 'RESPONSE':
