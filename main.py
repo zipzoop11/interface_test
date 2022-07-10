@@ -3,6 +3,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.stacklayout import StackLayout
 from kivy.uix.widget import Widget
 from kivy.utils import platform
 from kivy.clock import Clock
@@ -16,6 +17,7 @@ from helper_functions import starter_function_generator
 from helper_functions import validate_mac
 from helper_functions import add_target
 from helper_functions import random_macs
+
 if platform == 'android':
     from jnius import autoclass
     from bt_client import Bluetooth_connection
@@ -156,20 +158,38 @@ class TargetView(ScrollView):
         pass
 
 
-class Target(GridLayout, Widget):
+class Target(BoxLayout, Widget):
     def __init__(self, name=None, MAC=None, **kwargs):
         super(Target, self).__init__(**kwargs)
+        self.orientation = 'vertical'
+        self.tgt = GridLayout(cols=3, rows=1)
         self.cols = 3
-        self.rows = 1
-        self.ids['name'].text = name
-        self.ids['mac'].text = MAC
-        self.spacing = 3
-        self.name = name
-        self.MAC = MAC
-        self.info_rssi = self.ids['info_rssi']
-        self.info_channel = self.ids['info_channel']
-        self.info_bssid = self.ids['info_bssid']
+        self.rows = 2
 
+        self.ident = GridLayout(cols=1, rows=2)
+        self.name_label = Label(text=name)
+        self.MAC_label = Label(text=MAC)
+        self.ident.add_widget(self.name_label)
+        self.ident.add_widget(self.MAC_label)
+        self.tgt.add_widget(self.ident)
+
+        self.info = GridLayout(cols=1, rows=3)
+        self.rssi = Label(text='RSSI: -')
+        self.channel = Label(text='Ch: -')
+        self.BSSID = Label(text='BSSID: -')
+        self.info.add_widget(self.rssi)
+        self.info.add_widget(self.channel)
+        self.info.add_widget(self.BSSID)
+        self.tgt.add_widget(self.info)
+
+        self.control_buttons = GridLayout(cols=1, rows=2)
+        self.remove_btn = Button(text='X')
+        self.focus_btn = Button(text='FOCUS')
+        self.control_buttons.add_widget(self.remove_btn)
+        self.control_buttons.add_widget(self.focus_btn)
+        self.tgt.add_widget(self.control_buttons)
+
+        self.add_widget(self.tgt)
         self.register_event_type('on_hit')
 
     def dispatch_on_hit(self, *args, **kwargs):
@@ -178,9 +198,9 @@ class Target(GridLayout, Widget):
     def on_hit(self, *args, **kwargs):
         hit = args[0]
 
-        self.info_rssi.text = f"RSSI: {hit['rssi']}"
-        self.info_channel.text = f"CHANNEL: {hit['channel']}"
-        self.info_bssid.text = f"BSSID: {hit['bssid']}"
+        self.rssi.text = f"RSSI: {hit['rssi']}"
+        self.channel.text = f"CHANNEL: {hit['channel']}"
+        self.BSSID.text = f"BSSID: {hit['bssid']}"
 
         return True
 
@@ -206,6 +226,7 @@ class TargetList(ScrollView):
         print("TARGET LIST: {}".format(self.targets))
 
         self.add_widget(self.scroll_list)
+
     def add_target_to_list(self, target, *args):
         t_mac = target[0].upper()
         t_name = target[1]

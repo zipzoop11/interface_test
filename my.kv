@@ -72,36 +72,15 @@
 
 <target@Target>:
     size_hint: 1, None
-    height: '80dp'
+    height: '120dp'
     canvas:
         Color:
             rgba: 0,0,0,1
         Rectangle:
-            size: self.width+5, self.height+5
+            size: self.width+15, self.height+15
             pos: self.pos
-    BackgroundLabel:
-        text: 'NAME'
-        id: name
-        background_color: 1,0,0,1
-    BackgroundLabel:
-        text: 'MAC '
-        id: mac
-        background_color: 1,0,1,1
-    BoxLayout:
-        orientation: 'vertical'
-        id: info
-        BackgroundLabel:
-            text: 'RSSI: -'
-            id: info_rssi
-            background_color: 1,0,1,1
-        BackgroundLabel:
-            text: 'Channel: -'
-            id: info_channel
-            background_color: 1,0,1,1
-        BackgroundLabel:
-            text: 'BSSID: -'
-            id: info_bssid
-            background_color: 1,0,1,1
+    Separator:
+        index: len(root.children)
 
 
 
@@ -123,6 +102,20 @@
     # Default the background color for this label
     # to r 0, g 0, b 0, a 0
 
+
+#I fucking hate this
+<Separator@Widget>
+    size_hint_y: None
+    thickness: 15
+    margin: 15
+    height: self.thickness + 2 * self.margin
+    color: 1, 0, 0, 1
+    canvas:
+        Color:
+            rgba: self.color
+        Rectangle:
+            pos: self.x + self.margin, self.y + self.margin + 1
+            size: self.width - 2 * self.margin , self.thickness
 
 
 
