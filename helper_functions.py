@@ -64,3 +64,33 @@ def validate_mac(mac_address):
 		return bool(is_valid_mac.group())  # True if match
 	except AttributeError:
 		return False
+
+
+def add_target(t_mac, t_name, interface_name, callback_func=None):
+	print(f"[{__name__}]Called for interface {interface_name} with t_mac: {t_mac} and t_name: {t_name} and callback_func {callback_func}")
+	app = App.get_running_app()
+	conn = app.Bluetooth_connection
+
+	register_callback = app.register_request
+	interface = app.interfaces[interface_name]
+
+	if not interface:
+		return False
+	else:
+		target_list = interface['TARGETS']
+		target_entry = t_mac, t_name
+		target_list.append(target_entry)
+
+		request = {
+			'ACTION': 'UPDATE_SETTINGS',
+			'ARGS': {'interface_name': interface_name},
+			'SETTINGS': {'TARGETS': interface['TARGETS']}
+		}
+
+		request_id = conn.send(request)
+
+		if callback_func:
+			register_callback(request_id, callback_func)
+			return True
+		else:
+			return True

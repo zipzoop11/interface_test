@@ -14,6 +14,7 @@ from kivy.uix.textinput import TextInput
 import queue
 from helper_functions import starter_function_generator
 from helper_functions import validate_mac
+from helper_functions import add_target
 
 if platform == 'android':
     from jnius import autoclass
@@ -83,9 +84,9 @@ class MainInterface(BoxLayout):
         super(MainInterface, self).__init__(**kwargs)
 
 
-class add_target(Popup):
+class add_target_popup(Popup):
     def __init__(self, *args, **kwargs):
-        super(add_target, self).__init__(**kwargs)
+        super(add_target_popup, self).__init__(**kwargs)
         self.size_hint = 1, None
         self.title = 'Add target'
         self.height = "250dp"
@@ -130,16 +131,7 @@ class add_target(Popup):
                 self.error_message.color = (1, 0, 0, 0)
                 self.error_message.text = ''
                 for key in app.interfaces:
-                    interface = app.interfaces[key]
-                    interface['TARGETS'].append((self.mac_entry.text, self.name_entry.text))
-
-                    request = {
-                        'ACTION': 'UPDATE_SETTINGS',
-                        'ARGS': {'interface_name': key},
-                        'SETTINGS': {'TARGETS': interface['TARGETS']}
-                    }
-                    request_id = conn.send(request)
-                    app.register_request(request_id, self.add_target_callback)
+                    add_target(self.mac_entry.text, self.name_entry.text, key, callback_func=self.add_target_callback)
             else:
                 print("INVALID MAC")
                 self.error_message.color = (1, 0, 0, 1)
@@ -148,8 +140,7 @@ class add_target(Popup):
     def add_target_callback(self, *args, **kwargs):
         self.error_message.color = (0, 1, 0, 1)
         self.error_message.text = 'ADDED!'
-        self.target_list.add_target((self.mac_entry.text, self.name_entry.text))
-
+        self.target_list.add_target_to_list((self.mac_entry.text, self.name_entry.text))
 
 
 class TargetView(ScrollView):
@@ -207,7 +198,7 @@ class TargetList(GridLayout):
 
         print("TARGET LIST: {}".format(self.targets))
 
-    def add_target(self, target, *args):
+    def add_target_to_list(self, target, *args):
         print(f"[TargetList][add_target]Got args: {args} and target {target}")
         t_mac = target[0].upper()
         t_name = target[1]
