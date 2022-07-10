@@ -15,7 +15,7 @@ import queue
 from helper_functions import starter_function_generator
 from helper_functions import validate_mac
 from helper_functions import add_target
-
+from helper_functions import random_macs
 if platform == 'android':
     from jnius import autoclass
     from bt_client import Bluetooth_connection
@@ -62,9 +62,13 @@ class start_interface(Popup):
                 app.interfaces[i] = interfaces[i]['SETTINGS']
                 targets = interfaces[i]['SETTINGS']['TARGETS']
 
-                if targets:
-                    for t in targets:
-                        add_target_to_list((t[0], t[1]))
+                test_addrs = random_macs(100)
+
+                for addr in test_addrs:
+                    add_target_to_list((addr[0], addr[1]))
+                #if targets:
+                #    for t in targets:
+                #        add_target_to_list((t[0], t[1]))
 
                 print(f"[{__name__}]app.interfaces[{i}]: {app.interfaces[i]}")
 
@@ -185,16 +189,16 @@ class Target(GridLayout, Widget):
         return True
 
 
-class TargetList(GridLayout):
+class TargetList(ScrollView):
     def __init__(self, targets=None, **kwargs):
         super(TargetList, self).__init__(**kwargs)
-        #self.orientation = 'vertical'
-
+        self.scroll_list = GridLayout(size_hint=(1, None))
+        self.size_hint = 1, None
         if targets:
-            self.rows = len(targets)
+            self.scroll_list.rows = len(targets)
         else:
-            self.rows: 1
-        self.cols = 1
+            self.scroll_list.rows = 1
+        self.scroll_list.cols = 1
         self.targets = dict()
         self.size_hint = (1, None)
         if targets:
@@ -205,13 +209,15 @@ class TargetList(GridLayout):
 
         print("TARGET LIST: {}".format(self.targets))
 
+        self.add_widget(self.scroll_list)
     def add_target_to_list(self, target, *args):
-        print(f"[TargetList][add_target]Got args: {args} and target {target}")
         t_mac = target[0].upper()
         t_name = target[1]
         if t_mac not in self.targets:
             self.targets[t_mac] = Target(name=t_name, MAC=t_mac)
-            self.add_widget(self.targets[t_mac])
+            self.scroll_list.rows += 1
+            self.scroll_list.height += self.targets[t_mac].height
+            self.scroll_list.add_widget(self.targets[t_mac])
 
 
 class BTPickerPopup(Popup):
