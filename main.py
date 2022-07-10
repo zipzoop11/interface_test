@@ -93,14 +93,14 @@ class add_target(Popup):
         self.main_body = BoxLayout(orientation='vertical')
         self.name_entry = TextInput(hint_text='name', multiline=False)
         self.mac_entry = TextInput(hint_text='MAC Address', multiline=False)
-        self.mac_entry.bind(on_text_validate=self.validate_mac)
+        #self.mac_entry.bind(on_text_validate=self.validate_mac)
         self.dismiss_button = Button(text='Close')
 
         self.buttons = GridLayout(rows=1, cols=2)
         self.dismiss_button.bind(on_release=self.dismiss)
         self.add_button = Button(text='Add target')
         self.add_button.bind(on_release=self.add)
-        self.add_button.disabled = True
+        #self.add_button.disabled = True
         self.error_message = Label(text='', color=(1, 0, 0, 0))
 
         self.buttons.add_widget(self.dismiss_button)
@@ -115,43 +115,40 @@ class add_target(Popup):
         self.app = App.get_running_app()
         self.target_list = self.app.root.ids['middle_window'].ids['TARGET_LIST']
 
-
-    def validate_mac(self, *args, **kwargs):
-        print(f"[{__name__}]validate_mack called:")
-        if not validate_mac(self.mac_entry.text):
-            print(f"[{__name__}]{self.mac_entry.text} is not a valid mac")
-            self.error_message.color = (1, 0, 0, 1)
-            self.error_message.text = 'BAD MAC'
-            #self.add_button.disabled = True
-        else:
-            print(f"[{__name__}]{self.mac_entry.text} is a valid mac")
-            self.add_button.disabled = False
-            self.error_message.color = (1, 0, 0, 0)
-            self.error_message.text = ''
-
     def add(self, *args, **kwargs):
+        print("ADD CALLED!")
         app = App.get_running_app()
         conn = app.Bluetooth_connection
 
         if not app.interfaces:
+            print("GOT NO INTERFACES")
             self.error_message.color = (1, 0, 0, 1)
             self.error_message.text = 'NO STARTED INTERFACES'
         else:
-            for key in app.interfaces:
-                interface = app.interfaces[key]
-                interface['TARGETS'].append(self.mac_entry.text)
-                self.target_list.add_target((self.mac_entry.text, self.name_entry.text))
+            if validate_mac(self.mac_entry.text):
+                print("VALID MAC!")
+                self.error_message.color = (1, 0, 0, 0)
+                self.error_message.text = ''
+                for key in app.interfaces:
+                    interface = app.interfaces[key]
+                    interface['TARGETS'].append(self.mac_entry.text)
+                    self.target_list.add_target((self.mac_entry.text, self.name_entry.text))
 
-                request = {
-                    'ACTION': 'UPDATE_SETTINGS',
-                    'ARGS': {'interface_name': key},
-                    'SETTINGS': {'TARGETS': interface['TARGETS']}
-                }
-                request_id = conn.send(request)
-                app.register_request(request_id, self.add_target_callback)
+                    request = {
+                        'ACTION': 'UPDATE_SETTINGS',
+                        'ARGS': {'interface_name': key},
+                        'SETTINGS': {'TARGETS': interface['TARGETS']}
+                    }
+                    request_id = conn.send(request)
+                    app.register_request(request_id, self.add_target_callback)
+            else:
+                print("INVALID MAC")
+                self.error_message.color = (1, 0, 0, 1)
+                self.error_message.text = 'BAD MAC'
 
     def add_target_callback(self, *args, **kwargs):
-        print(f"[add_target_callback]Got args {args} and kwargs {kwargs}")
+        self.error_message.color = (0, 1, 0, 1)
+        self.error_message.text = 'ADDED!'
 
 
 
