@@ -1,5 +1,6 @@
 from kivy.app import App
 import re
+import random
 
 
 def starter_function_generator(*args, **kwargs):
@@ -91,3 +92,16 @@ def add_target(new_targets, interface_name, callback_func=None):
 			return True
 		else:
 			return True
+
+
+def random_macs(num):
+	i = 0
+	l = []
+	while i <= num:
+		m = "02:00:00:%02x:%02x:%02x" % (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+		n = str(random.randint(1, 65536))
+		l.append((m, n))
+		i += 1
+
+	return l
+
