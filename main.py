@@ -165,6 +165,7 @@ class Target(BoxLayout, Widget):
 
         self.name = name
         self.MAC = MAC
+        self.seen_on_channels = set()
 
         self.last_notify = 0
         self.target_list = self.app.root.ids['middle_window'].ids['TARGET_LIST']
@@ -209,7 +210,8 @@ class Target(BoxLayout, Widget):
         self.rssi.text = f"RSSI: {hit['rssi']}"
         self.channel.text = f"CHANNEL: {hit['channel']}"
         self.BSSID.text = f"BSSID: {hit['bssid']}"
-
+        self.seen_on_channels.add(int(hit['channel']))
+        print(f"[on_hit][{self.name}][{self.MAC}]Seen_on_channels {self.seen_on_channels}")
         if time.time() - self.last_notify > 60:
             notification.notify(title=f'{self.name_label.text} UPDATED', message=f'{self.name_label.text} RSSI: {self.rssi.text} CHANNEL {self.channel.text}')
             self.last_notify = time.time()
@@ -267,6 +269,7 @@ class TargetList(ScrollView):
             for i in app.interfaces:
                 remove_targets([(t_mac, t_name)], i, callback_func=callback)
 
+
 class BTPickerPopup(Popup):
     def __init__(self, **kwargs):
         super(BTPickerPopup, self).__init__(**kwargs)
@@ -314,7 +317,6 @@ class Bluetooth_device_picker(GridLayout):
             self.app.connect_bluetooth(device)
             app.connected_device = widget.text
         self.parent_widget.dismiss()
-
 
 
 class MyApp(App):
