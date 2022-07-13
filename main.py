@@ -2,6 +2,7 @@ from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.widget import Widget
 from kivy.utils import platform
 from kivy.clock import Clock
@@ -153,8 +154,6 @@ class add_target_popup(Popup):
         self.target_list.add_target_to_list((self.mac_entry.text, self.name_entry.text))
 
 
-
-
 class Target(BoxLayout, Widget):
     def __init__(self, name=None, MAC=None, **kwargs):
         super(Target, self).__init__(**kwargs)
@@ -291,20 +290,31 @@ class Bluetooth_device_picker(GridLayout):
 
         if self.app.paired_devices:
             for d in self.app.paired_devices:
-                b = Button(text=d, size_hint=(1, None), height="{}dp".format(self.button_height))
+                b = ToggleButton(text=d, size_hint=(1, None), height="{}dp".format(self.button_height))
+                if d == self.app.connected_device:
+                    b.state = 'down'
                 b.bind(on_press=self.connect_to_device)
                 self.paired_devices.append(b)
 
         self.height = "{}dp".format((len(self.paired_devices)*self.button_height))
-        print("self.height: {}".format(self.height))
+
         if self.paired_devices:
             for d in self.paired_devices:
                 self.add_widget(d)
 
     def connect_to_device(self, widget):
-        device = self.app.paired_devices[widget.text]
-        self.app.connect_bluetooth(device)
+        app = App.get_running_app()
+        if widget.state == 'normal':
+            app.Bluetooth_connection.disconnect()
+            app.connected_device = ''
+            app.connected = False
+            app.root.ids['status_connected'].text = f"Connected: {app.connected}"
+        else:
+            device = self.app.paired_devices[widget.text]
+            self.app.connect_bluetooth(device)
+            app.connected_device = widget.text
         self.parent_widget.dismiss()
+
 
 
 class MyApp(App):
@@ -319,6 +329,7 @@ class MyApp(App):
         self.outstanding_requests = dict()
         self.starter_functions = dict()
         self.interfaces = dict()
+        self.connected_device = None
 
 
         if platform == 'android':

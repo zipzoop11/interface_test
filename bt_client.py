@@ -77,6 +77,9 @@ class Bluetooth_connection:
 
     def disconnect(self):
         self.connected = False
+        self.rx_stream.close()
+        self.reader.join()
+        self.tx_stream.close()
         self.rx_stream, self.tx_stream = None, None
 
         return True
@@ -132,6 +135,7 @@ class Bluetooth_connection:
                 self.out_queue.put(msg.copy())
 
                 msg.clear()
+        print("RX thread exited...")
 
     def tx_thread(self):
         while self.connected:
@@ -161,6 +165,7 @@ class Bluetooth_connection:
                 self.tx_queue.pop(p)
 
             self.retransmitting = False
+        print("Tx thread exited...")
 
     def send(self, msg=None, SYN=False):
         pkt = dict()
