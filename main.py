@@ -1,13 +1,8 @@
 from kivy.app import App
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.togglebutton import ToggleButton
 from kivy.utils import platform
 from kivy.clock import Clock
-from kivy.uix.popup import Popup
-
 import queue
-from helper_functions import remove_targets
 
 # We need these to be able to refer to them in the .kv file
 from widgets import AddTarget
@@ -17,17 +12,14 @@ from widgets import BTPickerPopup
 
 if platform == 'android':
     from jnius import autoclass
-    from plyer import notification
     from bt_client import Bluetooth_connection
     BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
     autoclass('org.jnius.NativeInvocationHandler')
 
 
-
 class MainInterface(BoxLayout):
     def __init__(self, **kwargs):
         super(MainInterface, self).__init__(**kwargs)
-
 
 
 class MyApp(App):
@@ -43,7 +35,6 @@ class MyApp(App):
         self.starter_functions = dict()
         self.interfaces = dict()
         self.connected_device = None
-
 
         if platform == 'android':
             print("Running on android!")
