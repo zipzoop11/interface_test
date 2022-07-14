@@ -9,6 +9,7 @@ from widgets import AddTarget
 from widgets import StartInterface
 from widgets import TargetList, Target
 from widgets import BTPickerPopup
+from widgets import FocusTarget
 
 if platform == 'android':
     from jnius import autoclass
