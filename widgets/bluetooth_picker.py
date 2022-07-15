@@ -46,6 +46,7 @@ class Bluetooth_device_picker(GridLayout):
             app.connected_device = ''
             app.connected = False
             app.root.ids['status_connected'].text = f"Connected: {app.connected}"
+            app.fetcher.join()
         else:
             device = self.app.paired_devices[widget.text]
             self.app.connect_bluetooth(device)

@@ -77,9 +77,12 @@ class Bluetooth_connection:
 
     def disconnect(self):
         self.connected = False
-        self.rx_stream.close()
-        self.reader.join()
-        self.tx_stream.close()
+        try:
+            self.rx_stream.close()
+            self.reader.join()
+            self.tx_stream.close()
+        except AttributeError as e:
+            print(f"Disconnect hit AttributeError: {e}")
         self.rx_stream, self.tx_stream = None, None
 
         return True

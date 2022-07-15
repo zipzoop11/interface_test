@@ -29,6 +29,7 @@ class Target(BoxLayout, Widget):
 
         self.last_notify = 0
         self.target_list = self.app.root.ids['middle_window'].ids['TARGET_LIST']
+        self.focus_target = self.app.root.ids['middle_window'].ids['FOCUS_TARGET']
         self.remove_func = self.target_list.remove_target_from_list
 
         self.ident = GridLayout(cols=1, rows=2)
@@ -61,6 +62,12 @@ class Target(BoxLayout, Widget):
         self.add_widget(self.tgt)
         self.register_event_type('on_hit')
 
+        def set_focus(*args, **kwargs):
+            self.focus_target.set_target(name=self.name, MAC=self.MAC)
+            self.app.focus_target = self.MAC
+
+        self.focus_btn.bind(on_release=set_focus)
+
     def dispatch_on_hit(self, *args, **kwargs):
         self.dispatch('on_hit', *args, **kwargs)
 
@@ -71,10 +78,6 @@ class Target(BoxLayout, Widget):
         self.channel.text = f"CHANNEL: {hit['channel']}"
         self.BSSID.text = f"BSSID: {hit['bssid']}"
         self.seen_on_channels.add(int(hit['channel']))
-        print(f"[on_hit][{self.name}][{self.MAC}]Seen_on_channels {self.seen_on_channels}")
-        if time.time() - self.last_notify > 60:
-            notification.notify(title=f'{self.name_label.text} UPDATED', message=f'{self.name_label.text} RSSI: {self.rssi.text} CHANNEL {self.channel.text}')
-            self.last_notify = time.time()
 
         return True
 
