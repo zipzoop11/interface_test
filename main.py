@@ -67,6 +67,7 @@ class MyApp(App):
                         if addr in target_list.targets:
                             target = target_list.targets[addr]
                             last_notify = target.last_notify
+                            msg['ADDR'] = addr
 
                             if time.time() - last_notify > 60:
                                 message = f"{target.name_label.text} RSSI: {body['rssi']} CHANNEL {body['channel']}"
@@ -87,14 +88,12 @@ class MyApp(App):
 
             if msg.get('TYPE') == 'HIT':
                 body = msg['BODY']
-                addrs = [m.upper() for m in body['mac']]
+                addr = msg['ADDR']
 
-                for addr in addrs:
-                    if addr in target_list.targets:
-                        target_list.targets[addr].dispatch_on_hit(body)
+                target_list.targets[addr].dispatch_on_hit(body)
 
-                    if addr == self.focus_target:
-                        focus_target.on_hit(body)
+                if addr == self.focus_target:
+                    focus_target.on_hit(body)
 
             elif msg.get('TYPE') == 'RESPONSE':
                 req_id = msg['ACK']
@@ -103,6 +102,9 @@ class MyApp(App):
                 if requester:
                     print(f"[clock_callback]Got a response for id {req_id}: {msg}")
                     requester(msg['BODY'])
+
+            elif msg.get('TYPE') == 'STATUS':
+                print(f"[clock_status]Got STATUS {msg}")
 
         return True
 
