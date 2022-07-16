@@ -26,11 +26,17 @@ class FocusTarget(BoxLayout):
 		self.add_widget(self.info_container)
 
 		self.RSSI_display = BoxLayout(orientation='horizontal', size_hint=(1, .40))
-		self.RSSI_number = Label(text='--', font_size='75sp')
+		self.RSSI_number_container = BoxLayout(orientation='vertical')
+		self.RSSI_number = Label(text='--', size_hint=(1, .8), font_size='75sp')
+		self.RSSI_avg = Label(text='Avg: -')
+		self.RSSI_avg_list = []
 		self.RSSI_direction_indicator = Image(source='images/dash.png')
 
-		self.RSSI_display.add_widget(self.RSSI_number)
+		self.RSSI_number_container.add_widget(self.RSSI_number)
+		self.RSSI_number_container.add_widget(self.RSSI_avg)
+		self.RSSI_display.add_widget(self.RSSI_number_container)
 		self.RSSI_display.add_widget(self.RSSI_direction_indicator)
+
 		self.RSSI_over_time_old = 0
 		self.RSSI_over_time = []
 
@@ -70,6 +76,7 @@ class FocusTarget(BoxLayout):
 
 		self.RSSI_direction_indicator.source = 'images/dash.png'
 		self.RSSI_number.text = '--'
+		self.RSSI_avg.text = 'Avg: -'
 
 
 	def on_hit(self, hit, *args, **kwargs):
@@ -81,6 +88,7 @@ class FocusTarget(BoxLayout):
 
 		new_rssi = hit['rssi']
 		self.RSSI_over_time.append(new_rssi - curr_rssi)
+		self.RSSI_avg_list.append(new_rssi)
 
 		if len(self.RSSI_over_time) == 5:
 			new_sum = sum(self.RSSI_over_time)
@@ -97,12 +105,15 @@ class FocusTarget(BoxLayout):
 				pass
 
 		self.RSSI_number.text = str(new_rssi)
+		if len(self.RSSI_avg_list) == 5:
+			self.RSSI_avg.text = f'Avg: {sum(self.RSSI_avg_list)/5}'
+			self.RSSI_avg_list.clear()
 
 		try:
 			ch = channel_lookup_table[hit['channel']]
 		except KeyError as e:
 			print(f"[FocusTarget]Unknown channel: {e}")
-			ch = None
+			ch = hit['channel']
 
 		if ch in self.seen_channels:
 			self.seen_channels[ch] += 1
