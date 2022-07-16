@@ -9,7 +9,10 @@ from kivy.uix.stacklayout import StackLayout
 import random
 from channel_lookup_table import channel_lookup_table
 
-
+wifi_channels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 7, 8, 9, 11, 12, 16, 32, 34, 36, 38, 40, 42, 44, 46,
+				 48, 50, 52, 54, 56, 58, 60, 62, 64, 68, 96, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 122,
+				 124, 126, 128, 132, 134, 136, 138, 140, 142, 144, 149, 151, 153, 155, 157, 159, 161, 163, 165, 167,
+				 169, 171, 173, 175, 177, 182, 183, 184, 187, 188, 189, 192, 196]
 
 class FocusTarget(BoxLayout):
 	def __init__(self, **kwargs):
@@ -53,8 +56,6 @@ class FocusTarget(BoxLayout):
 		self.channel_control_buttons.add_widget(self.lock_button)
 		self.channel_control_buttons.add_widget(self.unlock_button)
 		self.add_widget(self.channel_control_buttons)
-
-		self.old_channels = None
 
 	def set_target(self, name=None, MAC=None):
 		self.name_label.text = name
@@ -124,7 +125,6 @@ class FocusTarget(BoxLayout):
 
 		lock_channels = list(self.seen_channels.keys())
 		for interface_name in interfaces:
-			self.old_channels = interfaces[interface_name]['CHANNELS']
 			request = {
 				'ACTION': 'UPDATE_SETTINGS',
 				'ARGS': {'interface_name': interface_name},
@@ -148,7 +148,7 @@ class FocusTarget(BoxLayout):
 			request = {
 				'ACTION': 'UPDATE_SETTINGS',
 				'ARGS': {'interface_name': interface_name},
-				'SETTINGS': {'CHANNELS': self.old_channels}
+				'SETTINGS': {'CHANNELS': wifi_channels}
 			}
 
 			def callback(*args, **kwargs):
