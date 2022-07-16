@@ -80,7 +80,7 @@ class FocusTarget(BoxLayout):
 			curr_rssi = 0
 
 		new_rssi = hit['rssi']
-		self.RSSI_over_time.append(new_rssi)
+		self.RSSI_over_time.append(new_rssi - curr_rssi)
 
 		if len(self.RSSI_over_time) == 5:
 			new_sum = sum(self.RSSI_over_time)
