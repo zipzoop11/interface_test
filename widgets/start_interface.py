@@ -39,9 +39,9 @@ class StartInterface(Popup):
         self.interface_list.remove_widget(self.placeholder)
         target_list = app.root.ids['middle_window'].ids['TARGET_LIST']
         add_target_to_list = target_list.add_target_to_list
-
+        status_bar = app.root.ids['status_bar']
         for i in interfaces:
-            print(f"Generating starter function for {i}")
+
             running = False
             STATE = interfaces[i]['STATE']
             if STATE == 'RUNNING':
@@ -49,11 +49,15 @@ class StartInterface(Popup):
                 app.interfaces[i] = interfaces[i]['SETTINGS']
                 targets = interfaces[i]['SETTINGS']['TARGETS']
 
+                status_bar.update_interface(name=i, status='Started')
+
                 if targets:
                     for t in targets:
                         add_target_to_list((t[0], t[1]))
+            else:
+                status_bar.update_interface(name=i, status='Stopped')
 
-                print(f"[{__name__}]app.interfaces[{i}]: {app.interfaces[i]}")
+
 
             widget = Interface_list_entry(i, starter_function_generator(i, self), running)
             self.interface_list.add_widget(widget)

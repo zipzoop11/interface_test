@@ -2,24 +2,8 @@
 <MainInterface>:
     orientation: 'vertical'
     id: main_app
-    GridLayout:
+    StatusBar:
         id: status_bar
-        cols: 3
-        rows: 1
-        size_hint: 1, None
-        height: "60dp"
-        Button:
-            size_hint: None, 1
-            width: "100dp"
-            text: 'AAAA'
-        Button:
-            disabled: True
-            id: status_connected
-            text: app.connect_status
-        Button:
-            size_hint: None, 1
-            width: "100dp"
-            text: 'CCCC'
     MiddleBit:
         id: middle_window
     GridLayout:

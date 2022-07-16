@@ -38,6 +38,9 @@ def add_interface(*args, **kwargs):
 	interfaces = app.interfaces
 	callback = args[0]
 	name = callback['INTERFACE_NAME']
+	status_bar = app.root.ids['status_bar']
+
+	status_bar.update_interface(name=name, status='Started')
 
 	interfaces[name] = callback['SETTINGS']
 	print(f"[{__name__}]app.interfaces[{name}]: {app.interfaces[name]}")
@@ -48,6 +51,10 @@ def remove_interface(*args, **kwargs):
 	interfaces = app.interfaces
 	callback = args[0]
 	name = callback['INTERFACE_NAME']
+
+	status_bar = app.root.ids['status_bar']
+
+	status_bar.update_interface(name=name, status='Stopped')
 
 	try:
 		interfaces.pop(name)

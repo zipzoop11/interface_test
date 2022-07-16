@@ -3,3 +3,4 @@ from .start_interface import StartInterface
 from .target_list import TargetList, Target
 from .bluetooth_picker import BTPickerPopup
 from .focus_target import FocusTarget
+from .status_bar import StatusBar

@@ -12,6 +12,7 @@ from widgets import StartInterface
 from widgets import TargetList, Target
 from widgets import BTPickerPopup
 from widgets import FocusTarget
+from widgets import StatusBar
 
 if platform == 'android':
     from jnius import autoclass
@@ -61,6 +62,7 @@ class MyApp(App):
                 msg = self.thread_queue.get(timeout=0.2)
                 if msg.get('TYPE') == 'HIT':
                     body = msg['BODY']
+                    msg['ADDR'] = None
                     addrs = [m.upper() for m in body['mac']]
 
                     for addr in addrs:
@@ -90,7 +92,10 @@ class MyApp(App):
                 body = msg['BODY']
                 addr = msg['ADDR']
 
-                target_list.targets[addr].dispatch_on_hit(body)
+                try:
+                    target_list.targets[addr].dispatch_on_hit(body)
+                except KeyError:
+                    pass
 
                 if addr == self.focus_target:
                     focus_target.on_hit(body)
@@ -104,7 +109,8 @@ class MyApp(App):
                     requester(msg['BODY'])
 
             elif msg.get('TYPE') == 'STATUS':
-                print(f"[clock_status]Got STATUS {msg}")
+                status_bar = app.root.ids['status_bar']
+                status_bar.update_metrics(msg['BODY'])
 
         return True
 
@@ -120,7 +126,6 @@ class MyApp(App):
             if self.Bluetooth_connection.connect():
                 self.connected = self.Bluetooth_connection.connected
                 self.connect_status.format(self.connected)
-                self.app.root.ids['status_connected'].text = f"Connected: {self.connected}"
                 self.app.root.ids['ADD_TARGET'].disabled = False
                 self.app.root.ids['INTERFACES'].disabled = False
                 Clock.schedule_interval(self.clock_callback, 1.0)
