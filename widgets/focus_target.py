@@ -28,6 +28,8 @@ class FocusTarget(BoxLayout):
 
 		self.RSSI_display.add_widget(self.RSSI_number)
 		self.RSSI_display.add_widget(self.RSSI_direction_indicator)
+		self.RSSI_over_time_old = 0
+		self.RSSI_over_time = []
 
 		self.add_widget(self.RSSI_display)
 		self.locked = 'UNLOCKED'
@@ -77,15 +79,23 @@ class FocusTarget(BoxLayout):
 			curr_rssi = 0
 
 		new_rssi = hit['rssi']
+		self.RSSI_over_time.append(new_rssi)
+
+		if len(self.RSSI_over_time) == 5:
+			new_sum = sum(self.RSSI_over_time)
+			diff = new_sum - self.RSSI_over_time_old
+			print(f"[FocusTarget][on_hit]New RSSI sum - Old RSSI Sum ({new_sum} - {self.RSSI_over_time_old}) == {diff}")
+			self.RSSI_over_time.clear()
+			self.RSSI_over_time_old = new_sum
+
+			if diff >= 0:
+				self.RSSI_direction_indicator.source = 'images/arrow_up.png'
+			elif diff < 0:
+				self.RSSI_direction_indicator.source = 'images/arrow_down.png'
+			else:
+				pass
 
 		self.RSSI_number.text = str(new_rssi)
-		if new_rssi - curr_rssi > 0:
-			self.RSSI_direction_indicator.source = 'images/arrow_up.png'
-		elif new_rssi - curr_rssi < 0:
-			self.RSSI_direction_indicator.source = 'images/arrow_down.png'
-		else:
-			pass
-
 
 		try:
 			ch = channel_lookup_table[hit['channel']]
