@@ -145,8 +145,12 @@ class Bluetooth_connection:
             timed_out = []
             time.sleep(random.randint(1, 5))
             self.retransmitting = True
+
             for p in self.acknowledgements:
-                self.tx_queue.pop(p)
+                try:
+                    self.tx_queue.pop(p)
+                except KeyError:
+                    pass
 
             self.acknowledgements.clear()
 
