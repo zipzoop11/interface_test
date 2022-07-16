@@ -129,5 +129,6 @@ class TargetList(ScrollView):
                 self.scroll_list.height -= t.height
                 self.scroll_list.rows -= 1
                 self.scroll_list.remove_widget(t)
+                self.targets.pop(t_mac)
             for i in app.interfaces:
                 remove_targets([(t_mac, t_name)], i, callback_func=callback)
