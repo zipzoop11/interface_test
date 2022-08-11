@@ -1,7 +1,7 @@
 [app]
 
 # (str) Title of your application
-title = My Application
+title = hk3_inter
 
 # (str) Package name
 package.name = interface_test
